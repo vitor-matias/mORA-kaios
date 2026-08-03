@@ -65,11 +65,17 @@
   //    digit shortcuts conflict with the app's and are suppressed.
   // ?browser=1 hands everything back to the browser.
   var ownsSoftkeys = window.location.protocol === 'app:';
+  // The KaiOS browser floats round buttons over the page's bottom corners
+  // — the in-browser class lifts the softkey bar clear of them.
+  document.documentElement.classList.toggle('in-browser', !ownsSoftkeys);
   if (!ownsSoftkeys && navigator.mozApps && navigator.mozApps.getSelf) {
     try {
       var selfReq = navigator.mozApps.getSelf();
       selfReq.onsuccess = function () {
-        if (selfReq.result) ownsSoftkeys = true;
+        if (selfReq.result) {
+          ownsSoftkeys = true;
+          document.documentElement.classList.remove('in-browser');
+        }
       };
     } catch (err) {
       /* not a KaiOS app context */
@@ -211,7 +217,13 @@
         html = '<div class="hour-heading">' + escapeText(moment.label) + '</div>';
         for (var i = 0; i < moment.parts.length; i++) {
           var part = moment.parts[i];
-          html += '<div class="part"><span class="part-title">' + escapeText(part.title) + '</span>';
+          // The chip labels the part inside a composite hour (Invitatório +
+          // Laudes, Tércia/Sexta/Noa); a single-part hour would just repeat
+          // the heading ("Completas" twice), so skip it there.
+          html += '<div class="part">';
+          if (moment.parts.length > 1) {
+            html += '<span class="part-title">' + escapeText(part.title) + '</span>';
+          }
           var verses = (part.verses || []).slice().sort(function (a, b) { return a.order - b.order; });
           for (var j = 0; j < verses.length; j++) {
             html += '<div class="verse">' + sanitizeHtml(verses[j].text) + '</div>';

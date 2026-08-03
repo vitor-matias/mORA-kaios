@@ -203,6 +203,10 @@ body {
 
 /* ---- Overlay (menus & choosers) ------------------------------------ */
 
+html.in-browser #overlay {
+  bottom: 56px; /* softkey bar height + its lift above the browser chrome */
+}
+
 #overlay {
   position: absolute;
   left: 0;
@@ -258,6 +262,13 @@ body {
 }
 
 /* ---- Softkey bar ---------------------------------------------------- */
+
+/* In a browser tab the KaiOS browser overlays floating round buttons on
+   the bottom corners of the page — keep the softkey bar above them. The
+   installed app (no floating chrome) stays flush with the bottom. */
+html.in-browser #softkeys {
+  margin-bottom: 32px;
+}
 
 #softkeys {
   flex-shrink: 0;
