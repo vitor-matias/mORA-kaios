@@ -19,9 +19,9 @@
  * app — the D-pad drives a virtual cursor, so clicks are the reliable
  * channel there. Same for mouse users on desktop.
  *
- * SoftLeft/SoftRight/Backspace are claimed everywhere by default so the
- * D-pad UI also works in a browser tab; open with ?browser=1 to leave
- * those keys to the browser (e.g. to reach its "Add to Home Screen").
+ * SoftLeft/SoftRight/Backspace keep their browser meaning in a browser
+ * tab (only a packaged/installed app claims them); the number pad is
+ * claimed everywhere. ?browser=1 hands everything back to the browser.
  *
  * Syntax budget: Gecko 48 — no async/await, no ?., no ??, no spread.
  */
@@ -44,13 +44,27 @@
   var FONT_KEY = 'mora_kaios_font';
   var FONT_CLASSES = ['font-s', '', 'font-l'];
 
-  // The app claims the softkeys and back key everywhere by default: the
-  // KaiOS browser delivers those key events to the page first, and
-  // preventDefault() suppresses the browser's own shortcuts, so the D-pad
-  // UI works even in a browser tab. Open with ?browser=1 to hand the keys
-  // back to the browser when its native menu is needed (e.g. the
-  // right-softkey "Add to Home Screen").
-  var appMode = !/[?&]browser=1/.test(window.location.search);
+  // Key ownership is split in two:
+  //  - SoftLeft/SoftRight/Backspace (the action keys) belong to the
+  //    browser unless we run as a packaged/installed app — so the KaiOS
+  //    browser's own softkey menu ("Add to Home Screen", back) keeps
+  //    working in a tab. The q/e/7 aliases and clicks drive those app
+  //    functions in the browser instead.
+  //  - The number pad (digits, *, #) is claimed everywhere: the browser's
+  //    digit shortcuts conflict with the app's and are suppressed.
+  // ?browser=1 hands everything back to the browser.
+  var ownsSoftkeys = window.location.protocol === 'app:';
+  if (!ownsSoftkeys && navigator.mozApps && navigator.mozApps.getSelf) {
+    try {
+      var selfReq = navigator.mozApps.getSelf();
+      selfReq.onsuccess = function () {
+        if (selfReq.result) ownsSoftkeys = true;
+      };
+    } catch (err) {
+      /* not a KaiOS app context */
+    }
+  }
+  var browserAll = /[?&]browser=1/.test(window.location.search);
 
   var state = {
     view: 'horas',          // 'horas' | 'missa'
@@ -389,12 +403,28 @@
     renderSoftkeys();
   }
 
+  function exitApp() {
+    // Packaged apps close with window.close(); a browser tab the user
+    // opened ignores it, so fall back to leaving the page via history —
+    // and if there's nowhere to go back to, stay put with the menu closed.
+    window.close();
+    setTimeout(function () {
+      if (window.closed) return;
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        closeOverlay();
+        renderAll();
+      }
+    }, 150);
+  }
+
   function openExitConfirm() {
     state.overlay = {
       type: 'confirm',
       title: 'Sair do mORA?',
       items: [
-        { label: 'Sair', action: function () { window.close(); } },
+        { label: 'Sair', action: exitApp },
         { label: 'Continuar a rezar', action: function () { closeOverlay(); renderAll(); } }
       ],
       index: 1
@@ -521,13 +551,13 @@
       case 'SoftLeft':
         // In a browser tab the physical softkeys stay with the browser
         // (its right-softkey menu is how the page gets added as an app).
-        if (!appMode && !fromAlias) return;
+        if (!ownsSoftkeys && !fromAlias) return;
         openOptionsMenu();
         e.preventDefault();
         break;
       case 'SoftRight':
       case 'Backspace':
-        if (!appMode && !fromAlias) return;
+        if (!ownsSoftkeys && !fromAlias) return;
         backAction();
         e.preventDefault();
         break;
@@ -536,23 +566,23 @@
       // preventDefault()ed — including 6 and 8, which the app doesn't use
       // — so the browser's shortcuts can't fire underneath ours.
       case '9':
-        if (!appMode) return;
+        if (browserAll) return;
         state.view = state.view === 'horas' ? 'missa' : 'horas';
         renderAll();
         e.preventDefault();
         break;
       case '0':
-        if (!appMode) return;
+        if (browserAll) return;
         toggleAutoscroll();
         e.preventDefault();
         break;
       case '*':
-        if (!appMode) return;
+        if (browserAll) return;
         setFontSize(state.fontSize - 1);
         e.preventDefault();
         break;
       case '#':
-        if (!appMode) return;
+        if (browserAll) return;
         setFontSize(state.fontSize + 1);
         e.preventDefault();
         break;
@@ -561,13 +591,13 @@
       case '3':
       case '4':
       case '5':
-        if (!appMode) return;
+        if (browserAll) return;
         selectHourByNumber(Number(key));
         e.preventDefault();
         break;
       case '6':
       case '8':
-        if (appMode) e.preventDefault();
+        if (!browserAll) e.preventDefault();
         break;
       default:
         break;
@@ -613,7 +643,7 @@
           var idx = Number(key) - 1;
           if (idx < overlay.items.length) overlay.items[idx].action();
           e.preventDefault();
-        } else if (appMode && /^[0-9*#]$/.test(key)) {
+        } else if (!browserAll && /^[0-9*#]$/.test(key)) {
           // Keep the browser's number-key functions suppressed while an
           // overlay is open too.
           e.preventDefault();

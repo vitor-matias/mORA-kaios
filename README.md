@@ -44,13 +44,14 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
 
 Desktop testing: `q` = SoftLeft, `e` = SoftRight; Escape closes menus.
 
-The app claims the softkeys and back key **everywhere by default** —
-browser shortcuts are suppressed so the key map above works in a browser
-tab too. When you need the browser's own softkey menu (e.g. its
-**"Add to Home Screen"**), open the app with `?browser=1` appended to the
-URL: that hands SoftLeft/SoftRight/Backspace back to the browser, while
-the clickable controls (‹ › day arrows, softkey-bar labels, menu entries)
-and the `7` options-menu shortcut keep driving the app.
+Key ownership is split: **the action keys (SoftLeft/SoftRight/Back) keep
+their browser meaning in a browser tab** — so the browser's softkey menu
+with "Add to Home Screen" works — and only the packaged/installed app
+claims them. **The number pad (digits, `*`, `#`) is claimed everywhere**,
+suppressing the browser's conflicting digit shortcuts. In a browser,
+drive the app with the clickable controls (‹ › day arrows, softkey-bar
+labels, menu entries), the digit shortcuts, and `7` for the options menu.
+Appending `?browser=1` to the URL hands every key back to the browser.
 
 ## Running it
 
