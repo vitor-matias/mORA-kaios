@@ -17,7 +17,9 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
   Laudes, Hora Intermédia, Vésperas, Completas) assembled from the API
   parts exactly as the mORA web app does, defaulting to the hour that fits
   the current time of day.
-- **Missa do dia** — the day's Mass text.
+- **Missa do dia** — the day's Mass, defaulting to the readings only
+  (same extraction as the mORA web app); the full missal is a toggle in
+  the options menu.
 - Day navigation (previous/next/today), per-day `localStorage` cache with
   automatic pruning of past days, stale-cache fallback when offline, and a
   bundled sample day so the app always renders something.

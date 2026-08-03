@@ -56,6 +56,7 @@
     view: 'horas',          // 'horas' | 'missa'
     date: new Date(),
     hourId: null,           // selected canonical hour id
+    missaFull: false,       // Missa defaults to readings-only
     liturgy: null,
     loading: false,
     error: null,
@@ -104,6 +105,25 @@
       }
     });
     return doc.body.firstChild ? doc.body.firstChild.innerHTML : '';
+  }
+
+  // Slice the Mass text down to the readings (port of the mORA web app's
+  // readings-only view): from "LEITURA I" up to the Credo/offertory, with
+  // the Aleluia block before the Gospel dropped. Falls back to the full
+  // text when the markers aren't found.
+  function extractReadings(html) {
+    var startIdx = html.indexOf('<p><strong>LEITURA I');
+    if (startIdx === -1) return html;
+    var postStart = html.slice(startIdx);
+    var endMatch = postStart.search(
+      /<p>(?:<b>(?:Oração sobre as oblatas|Prefácio)|Diz-se o Credo|<strong>(?:Credo|Oração sobre as oblatas))/i
+    );
+    var endIdx = endMatch !== -1 ? startIdx + endMatch : html.length;
+    var extracted = html.substring(startIdx, endIdx);
+    return extracted.replace(
+      /<p><strong>(?:ALELUIA|ACLAMAÇÃO ANTES DO EVANGELHO)<\/strong>[\s\S]*?(?=<p><strong>EVANGELHO<\/strong>)/i,
+      ''
+    );
   }
 
   // ---- Rendering ------------------------------------------------------
@@ -159,7 +179,9 @@
     } else if (!state.liturgy) {
       html = '<div class="center-note">Não há liturgia para este dia.</div>';
     } else if (state.view === 'missa') {
-      html = sanitizeHtml(state.liturgy.massHtml);
+      var massHtml = state.liturgy.massHtml;
+      if (!state.missaFull) massHtml = extractReadings(massHtml);
+      html = sanitizeHtml(massHtml);
     } else {
       var moment = currentMoment();
       if (!moment) {
@@ -331,6 +353,16 @@
     });
     if (state.view === 'horas') {
       items.push({ label: 'Escolher Hora…', action: function () { openHourChooser(); } });
+    }
+    if (state.view === 'missa') {
+      items.push({
+        label: state.missaFull ? 'Ver só as leituras' : 'Ver missal completo',
+        action: function () {
+          state.missaFull = !state.missaFull;
+          closeOverlay();
+          renderAll();
+        }
+      });
     }
     items.push({
       label: 'Hoje',
@@ -506,25 +538,43 @@
         backAction();
         e.preventDefault();
         break;
+      // The KaiOS browser has its own number-key functions (zoom, scroll
+      // shortcuts); in app mode every digit/*/# is claimed and
+      // preventDefault()ed — including 6 and 8, which the app doesn't use
+      // — so the browser's shortcuts can't fire underneath ours.
       case '9':
+        if (!appMode) return;
         state.view = state.view === 'horas' ? 'missa' : 'horas';
         renderAll();
+        e.preventDefault();
         break;
       case '0':
+        if (!appMode) return;
         toggleAutoscroll();
+        e.preventDefault();
         break;
       case '*':
+        if (!appMode) return;
         setFontSize(state.fontSize - 1);
+        e.preventDefault();
         break;
       case '#':
+        if (!appMode) return;
         setFontSize(state.fontSize + 1);
+        e.preventDefault();
         break;
       case '1':
       case '2':
       case '3':
       case '4':
       case '5':
+        if (!appMode) return;
         selectHourByNumber(Number(key));
+        e.preventDefault();
+        break;
+      case '6':
+      case '8':
+        if (appMode) e.preventDefault();
         break;
       default:
         break;
@@ -569,6 +619,10 @@
         if (overlay.type === 'hours' && key >= '1' && key <= '5') {
           var idx = Number(key) - 1;
           if (idx < overlay.items.length) overlay.items[idx].action();
+          e.preventDefault();
+        } else if (appMode && /^[0-9*#]$/.test(key)) {
+          // Keep the browser's number-key functions suppressed while an
+          // overlay is open too.
           e.preventDefault();
         }
         break;
