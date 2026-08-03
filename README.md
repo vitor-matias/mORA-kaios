@@ -43,7 +43,7 @@ Desktop testing: `q` = SoftLeft, `e` = SoftRight.
 
 ## Running it
 
-**Hosted (GitHub Pages):** <https://vitor-matias.github.io/mora-kaios/> —
+**Hosted (GitHub Pages):** <https://vitor-matias.github.io/mORA-kaios/> —
 deployed automatically from `main` by `.github/workflows/pages.yml`.
 KaiOS 2.5's browser can also open this URL directly, which is a quick way
 to try the app on a device before sideloading the packaged version.
