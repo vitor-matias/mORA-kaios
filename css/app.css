@@ -55,10 +55,10 @@ body {
 /* ---- Header -------------------------------------------------------- */
 
 #header {
-  border-top: 4px solid var(--accent);
+  border-top: 3px solid var(--accent);
   background: var(--surface);
   border-bottom: 1px solid var(--line);
-  padding: 4px 8px 5px 8px;
+  padding: 2px 8px;
   flex-shrink: 0;
 }
 
@@ -95,14 +95,6 @@ body {
   letter-spacing: 0.04em;
   color: var(--accent);
   font-weight: bold;
-}
-
-#title-line {
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ---- Offline / sample banner --------------------------------------- */

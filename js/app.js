@@ -70,7 +70,6 @@
     navPrev: document.getElementById('nav-prev'),
     navNext: document.getElementById('nav-next'),
     dateLine: document.getElementById('date-line'),
-    titleLine: document.getElementById('title-line'),
     banner: document.getElementById('banner'),
     content: document.getElementById('content'),
     overlay: document.getElementById('overlay'),
@@ -135,12 +134,6 @@
   function renderHeader() {
     el.dateLine.textContent = formatDateLabel(state.date);
     var lit = state.liturgy;
-    var title = '';
-    if (lit) {
-      title = lit.weekName ? lit.weekName : '';
-      if (lit.title && lit.title !== title) title = title ? title + ' — ' + lit.title : lit.title;
-    }
-    el.titleLine.textContent = title;
     var color = lit && COLORS[lit.color] ? COLORS[lit.color] : COLORS.verde;
     document.documentElement.style.setProperty('--accent', color);
   }
