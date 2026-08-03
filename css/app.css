@@ -204,9 +204,11 @@ body {
 
 /* ---- Overlay (menus & choosers) ------------------------------------ */
 
-/* Clearance for the KaiOS browser's floating round buttons. */
-html.in-browser #overlay {
-  bottom: 36px;
+/* Clearance for the KaiOS browser's floating round buttons: the menu
+   stays anchored to the screen bottom, but pads its inside so the last
+   entry sits above them. */
+html.in-browser #overlay-box {
+  padding-bottom: 30px;
 }
 
 #overlay {
