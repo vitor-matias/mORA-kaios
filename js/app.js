@@ -53,6 +53,7 @@
   var FONT_KEY = 'mora_kaios_font';
   var FONT_CLASSES = ['font-s', '', 'font-l'];
   var THEME_KEY = 'mora_kaios_theme';
+  var SERIF_KEY = 'mora_kaios_serif';
 
   // Key ownership is split in two:
   //  - SoftLeft/SoftRight/Backspace (the action keys) belong to the
@@ -87,6 +88,7 @@
     overlay: null,          // { type, title, items: [{label, hint, action}], index }
     fontSize: 1,
     theme: 'light',         // 'light' | 'dark'
+    serif: false,           // serif face for the reading text
     autoscroll: null        // interval id or null
   };
 
@@ -401,10 +403,24 @@
       }
     });
     items.push({
+      label: isFullscreen() ? 'Sair de ecrã inteiro' : 'Ecrã inteiro',
+      action: function () {
+        closeOverlay();
+        toggleFullscreen();
+      }
+    });
+    items.push({
       label: state.theme === 'dark' ? 'Tema claro' : 'Tema escuro',
       action: function () {
         closeOverlay();
         setTheme(state.theme === 'dark' ? 'light' : 'dark');
+      }
+    });
+    items.push({
+      label: state.serif ? 'Letra sem serifa' : 'Letra com serifa',
+      action: function () {
+        closeOverlay();
+        setSerif(!state.serif);
       }
     });
     items.push({ label: 'Texto maior', hint: '#', action: function () { closeOverlay(); setFontSize(state.fontSize + 1); } });
@@ -482,6 +498,29 @@
     if (state.wakeLock) {
       try { state.wakeLock.unlock(); } catch (e) { /* already released */ }
       state.wakeLock = null;
+    }
+  }
+
+  function setSerif(on) {
+    state.serif = !!on;
+    document.documentElement.classList.toggle('serif', state.serif);
+    try { localStorage.setItem(SERIF_KEY, state.serif ? '1' : '0'); } catch (e) { /* ignore */ }
+  }
+
+  // Fullscreen hides the browser/system chrome that otherwise sits above
+  // the app (Gecko 48 uses the moz-prefixed Fullscreen API).
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.mozFullScreenElement);
+  }
+
+  function toggleFullscreen() {
+    var root = document.documentElement;
+    if (isFullscreen()) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+    } else {
+      if (root.requestFullscreen) root.requestFullscreen();
+      else if (root.mozRequestFullScreen) root.mozRequestFullScreen();
     }
   }
 
@@ -691,8 +730,22 @@
 
     try {
       setTheme(localStorage.getItem(THEME_KEY) || 'light');
+      setSerif(localStorage.getItem(SERIF_KEY) === '1');
     } catch (e) {
       /* defaults apply */
+    }
+
+    // Kill the emulated cursor where the platform lets us: the manifest's
+    // "cursor": false covers packaged apps, and spatialNavigationEnabled
+    // (behind the spatialnavigation-app-manage permission, privileged apps
+    // only) is the runtime switch. A plain page in the KaiOS *browser*
+    // cannot turn the browser's cursor off — that needs the installed app.
+    try {
+      if ('spatialNavigationEnabled' in navigator) {
+        navigator.spatialNavigationEnabled = false;
+      }
+    } catch (e) {
+      /* not permitted in this context */
     }
 
     document.addEventListener('keydown', onKeyDown);

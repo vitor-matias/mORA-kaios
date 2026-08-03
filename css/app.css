@@ -46,6 +46,12 @@ html {
 html.font-s { font-size: 13px; }
 html.font-l { font-size: 17px; }
 
+/* Serif option for the reading text (menu toggle, persisted). Falls back
+   to the generic serif on devices without these faces. */
+html.serif #content {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
 * {
   margin: 0;
   padding: 0;

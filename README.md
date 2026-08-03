@@ -24,7 +24,8 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
   automatic pruning of past days, stale-cache fallback when offline, and a
   bundled sample day so the app always renders something.
 - Hands-free **autoscroll** for praying without touching the keypad.
-- Three text sizes and a light/dark theme, both persisted.
+- Three text sizes, a serif/sans reading face, and a light/dark theme —
+  all persisted. A fullscreen toggle hides the browser/system chrome.
 - Liturgical-colour header accent inferred from the day's title.
 
 ## Controls

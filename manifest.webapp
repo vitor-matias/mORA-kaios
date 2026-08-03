@@ -16,6 +16,9 @@
   "permissions": {
     "systemXHR": {
       "description": "Obter a liturgia do dia a partir do serviço de liturgia."
+    },
+    "spatialnavigation-app-manage": {
+      "description": "Desativar o cursor virtual: a app navega-se com as teclas direcionais."
     }
   },
   "default_locale": "pt",
@@ -26,6 +29,6 @@
     }
   },
   "orientation": ["portrait"],
-  "fullscreen": "false",
+  "fullscreen": "true",
   "cursor": false
 }
