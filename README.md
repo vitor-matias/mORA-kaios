@@ -16,7 +16,8 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
 - **Liturgia das Horas** — the five canonical hours (Ofício de Leitura,
   Laudes, Hora Intermédia, Vésperas, Completas) assembled from the API
   parts exactly as the mORA web app does, defaulting to the hour that fits
-  the current time of day.
+  the current time of day. Choosing Hora Intermédia opens a second
+  chooser for Tércia/Sexta/Noa, pre-selected by time of day.
 - **Missa do dia** — the day's Mass, defaulting to the readings only
   (same extraction as the mORA web app); the full missal is a toggle in
   the options menu.

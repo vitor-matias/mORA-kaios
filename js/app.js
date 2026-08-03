@@ -87,6 +87,7 @@
     view: 'horas',          // 'horas' | 'missa'
     date: new Date(),
     hourId: null,           // selected canonical hour id
+    subHour: null,          // 'Tércia' | 'Sexta' | 'Noa' | null = by time
     missaFull: false,       // Missa defaults to readings-only
     liturgy: null,
     loading: false,
@@ -194,6 +195,27 @@
     return moments.length > 0 ? moments[0] : null;
   }
 
+  // Which of Tércia/Sexta/Noa fits the time of day (the mORA web app's
+  // defaulting: mid-morning, midday, mid-afternoon).
+  function defaultSubHour(now) {
+    now = now || new Date();
+    var h = now.getHours();
+    if (h < 12) return 'Tércia';
+    if (h < 15) return 'Sexta';
+    return 'Noa';
+  }
+
+  // The parts to display for a moment: Hora Intermédia narrows to the
+  // chosen (or time-appropriate) sub-hour; other hours show everything.
+  function displayedParts(moment) {
+    if (moment.id !== 'intermedia') return moment.parts;
+    var wanted = state.subHour || defaultSubHour();
+    for (var i = 0; i < moment.parts.length; i++) {
+      if (moment.parts[i].title === wanted) return [moment.parts[i]];
+    }
+    return moment.parts;
+  }
+
   function renderContent() {
     stopAutoscroll();
     var html = '';
@@ -214,14 +236,19 @@
       if (!moment) {
         html = '<div class="center-note">Sem Liturgia das Horas para este dia.</div>';
       } else {
-        html = '<div class="hour-heading">' + escapeText(moment.label) + '</div>';
-        for (var i = 0; i < moment.parts.length; i++) {
-          var part = moment.parts[i];
+        var parts = displayedParts(moment);
+        var heading = moment.label;
+        if (moment.id === 'intermedia' && parts.length === 1) {
+          heading = 'Hora Intermédia (' + parts[0].title + ')';
+        }
+        html = '<div class="hour-heading">' + escapeText(heading) + '</div>';
+        for (var i = 0; i < parts.length; i++) {
+          var part = parts[i];
           // The chip labels the part inside a composite hour (Invitatório +
-          // Laudes, Tércia/Sexta/Noa); a single-part hour would just repeat
-          // the heading ("Completas" twice), so skip it there.
+          // Laudes); a single-part hour would just repeat the heading
+          // ("Completas" twice), so skip it there.
           html += '<div class="part">';
-          if (moment.parts.length > 1) {
+          if (parts.length > 1) {
             html += '<span class="part-title">' + escapeText(part.title) + '</span>';
           }
           var verses = (part.verses || []).slice().sort(function (a, b) { return a.order - b.order; });
@@ -357,6 +384,10 @@
           label: moment.label,
           hint: String(n + 1),
           action: function () {
+            if (moment.id === 'intermedia' && moment.parts.length > 1) {
+              openSubHourChooser(moment);
+              return;
+            }
             state.view = 'horas';
             state.hourId = moment.id;
             closeOverlay();
@@ -368,6 +399,32 @@
     state.overlay = { type: 'hours', title: 'Liturgia das Horas', items: items, index: 0 };
     for (var k = 0; k < moments.length; k++) {
       if (moments[k].id === state.hourId) state.overlay.index = k;
+    }
+    renderOverlay();
+    renderSoftkeys();
+  }
+
+  function openSubHourChooser(moment) {
+    var current = state.subHour || defaultSubHour();
+    var items = [];
+    for (var i = 0; i < moment.parts.length; i++) {
+      (function (part, n) {
+        items.push({
+          label: part.title,
+          hint: String(n + 1),
+          action: function () {
+            state.view = 'horas';
+            state.hourId = 'intermedia';
+            state.subHour = part.title;
+            closeOverlay();
+            renderAll();
+          }
+        });
+      })(moment.parts[i], i);
+    }
+    state.overlay = { type: 'hours', title: 'Hora Intermédia', items: items, index: 0 };
+    for (var k = 0; k < moment.parts.length; k++) {
+      if (moment.parts[k].title === current) state.overlay.index = k;
     }
     renderOverlay();
     renderSoftkeys();
