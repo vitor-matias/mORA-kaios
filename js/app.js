@@ -38,11 +38,21 @@
     rosa: '#c26a8d'
   };
 
+  // Brighter liturgical accents for readability on the dark background.
+  var COLORS_DARK = {
+    verde: '#4caf72',
+    roxo: '#a678d8',
+    vermelho: '#e0645a',
+    branco: '#d4b95e',
+    rosa: '#d98aa8'
+  };
+
   var WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
   var MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
   var FONT_KEY = 'mora_kaios_font';
   var FONT_CLASSES = ['font-s', '', 'font-l'];
+  var THEME_KEY = 'mora_kaios_theme';
 
   // Key ownership is split in two:
   //  - SoftLeft/SoftRight/Backspace (the action keys) belong to the
@@ -76,6 +86,7 @@
     error: null,
     overlay: null,          // { type, title, items: [{label, hint, action}], index }
     fontSize: 1,
+    theme: 'light',         // 'light' | 'dark'
     autoscroll: null        // interval id or null
   };
 
@@ -148,7 +159,8 @@
   function renderHeader() {
     el.dateLine.textContent = formatDateLabel(state.date);
     var lit = state.liturgy;
-    var color = lit && COLORS[lit.color] ? COLORS[lit.color] : COLORS.verde;
+    var palette = state.theme === 'dark' ? COLORS_DARK : COLORS;
+    var color = lit && palette[lit.color] ? palette[lit.color] : palette.verde;
     document.documentElement.style.setProperty('--accent', color);
   }
 
@@ -388,6 +400,13 @@
         toggleAutoscroll();
       }
     });
+    items.push({
+      label: state.theme === 'dark' ? 'Tema claro' : 'Tema escuro',
+      action: function () {
+        closeOverlay();
+        setTheme(state.theme === 'dark' ? 'light' : 'dark');
+      }
+    });
     items.push({ label: 'Texto maior', hint: '#', action: function () { closeOverlay(); setFontSize(state.fontSize + 1); } });
     items.push({ label: 'Texto menor', hint: '*', action: function () { closeOverlay(); setFontSize(state.fontSize - 1); } });
     items.push({
@@ -464,6 +483,13 @@
       try { state.wakeLock.unlock(); } catch (e) { /* already released */ }
       state.wakeLock = null;
     }
+  }
+
+  function setTheme(theme) {
+    state.theme = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.classList.toggle('dark', state.theme === 'dark');
+    try { localStorage.setItem(THEME_KEY, state.theme); } catch (e) { /* ignore */ }
+    renderHeader(); // accent palette differs per theme
   }
 
   function setFontSize(size) {
@@ -662,6 +688,12 @@
       if (isNaN(savedFont)) savedFont = 1;
     } catch (e) { /* defaults apply */ }
     setFontSize(savedFont);
+
+    try {
+      setTheme(localStorage.getItem(THEME_KEY) || 'light');
+    } catch (e) {
+      /* defaults apply */
+    }
 
     document.addEventListener('keydown', onKeyDown);
 

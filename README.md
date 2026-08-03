@@ -24,7 +24,7 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
   automatic pruning of past days, stale-cache fallback when offline, and a
   bundled sample day so the app always renders something.
 - Hands-free **autoscroll** for praying without touching the keypad.
-- Three text sizes, persisted.
+- Three text sizes and a light/dark theme, both persisted.
 - Liturgical-colour header accent inferred from the day's title.
 
 ## Controls
@@ -112,5 +112,5 @@ note that on Gecko 48 `systemXHR` only applies to `XMLHttpRequest` with
 - No liturgical-calendar ICS integration (colour is inferred from the
   Mass title); `liturgia.pt` needs `mozSystem` XHR on-device.
 - No reminders (`mozAlarms`) yet — see the requirements doc, §3.5.
-- Dark theme, Sunday-vigil Mass defaulting, and prefetch-tomorrow are
-  straightforward follow-ups.
+- Sunday-vigil Mass defaulting and prefetch-tomorrow are straightforward
+  follow-ups.

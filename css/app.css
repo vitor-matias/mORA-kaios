@@ -20,6 +20,25 @@
   --sk-ink: #faf9f6;
 }
 
+/* Dark theme: toggled by JS as a class (Gecko 48 predates
+   prefers-color-scheme), persisted in localStorage. */
+html.dark {
+  --bg: #121212;
+  --surface: #1d1c1a;
+  --ink: #e8e4dc;
+  --ink-soft: #a49d92;
+  --line: #35322d;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --sk-bg: #000000;
+  --sk-ink: #e8e4dc;
+}
+
+html.dark #banner {
+  background: #3a3010;
+  color: #e8d49a;
+  border-bottom-color: #575038;
+}
+
 html {
   font-size: 15px;
 }
