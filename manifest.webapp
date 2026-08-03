@@ -1,0 +1,31 @@
+{
+  "name": "mORA",
+  "subtitle": "Liturgia das Horas e Missa",
+  "description": "Liturgia das Horas e leituras da Missa diária em português (rito português).",
+  "version": "0.1.0",
+  "launch_path": "/index.html",
+  "type": "privileged",
+  "icons": {
+    "56": "/icons/icon-56.png",
+    "112": "/icons/icon-112.png"
+  },
+  "developer": {
+    "name": "mORA",
+    "url": "https://github.com/vitor-matias/mORA"
+  },
+  "permissions": {
+    "systemXHR": {
+      "description": "Obter a liturgia do dia a partir do serviço de liturgia."
+    }
+  },
+  "default_locale": "pt",
+  "locales": {
+    "pt": {
+      "name": "mORA",
+      "description": "Liturgia das Horas e leituras da Missa diária em português."
+    }
+  },
+  "orientation": ["portrait"],
+  "fullscreen": "false",
+  "cursor": false
+}
