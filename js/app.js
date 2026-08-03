@@ -8,9 +8,17 @@
  *   SoftRight  back / exit                 (desktop testing: e)
  *   Backspace  back / exit (KaiOS back key)
  *   1–5        jump straight to a canonical hour
+ *   7          options menu (alias — reaches the page even in browsers
+ *              that keep the softkeys for themselves)
  *   9          switch Horas ⇄ Missa
  *   0          toggle autoscroll
  *   * / #      smaller / larger text
+ *
+ * Every control is also clickable (header day arrows, softkey bar,
+ * overlay items): in the KaiOS *browser* — as opposed to the packaged
+ * app — the softkeys belong to the browser chrome and the D-pad drives a
+ * virtual cursor, so clicks are the reliable channel there. Same for
+ * mouse users on desktop.
  *
  * Syntax budget: Gecko 48 — no async/await, no ?., no ??, no spread.
  */
@@ -47,6 +55,8 @@
 
   var el = {
     header: document.getElementById('header'),
+    navPrev: document.getElementById('nav-prev'),
+    navNext: document.getElementById('nav-next'),
     dateLine: document.getElementById('date-line'),
     titleLine: document.getElementById('title-line'),
     banner: document.getElementById('banner'),
@@ -401,6 +411,34 @@
     try { localStorage.setItem(FONT_KEY, String(size)); } catch (e) { /* ignore */ }
   }
 
+  // ---- Shared actions (keys and clicks route through these) ----------
+
+  function overlayActivate(index) {
+    var overlay = state.overlay;
+    if (!overlay || index < 0 || index >= overlay.items.length) return;
+    overlay.index = index;
+    overlay.items[index].action();
+  }
+
+  // What Enter means outside an overlay (also the centre softkey's click).
+  function primaryAction() {
+    if (state.error) {
+      loadDay();
+    } else if (state.view === 'horas') {
+      openHourChooser();
+    }
+  }
+
+  // What SoftRight/Backspace mean (also the right softkey's click).
+  function backAction() {
+    if (state.overlay) {
+      closeOverlay();
+      renderAll();
+    } else {
+      openExitConfirm();
+    }
+  }
+
   // ---- Key handling ---------------------------------------------------
 
   var SCROLL_STEP = 48;
@@ -408,8 +446,9 @@
   function onKeyDown(e) {
     var key = e.key;
 
-    // Desktop-testing aliases for the softkeys.
-    if (key === 'q') key = 'SoftLeft';
+    // Aliases: q/e for desktop testing, 7 for browsers whose chrome
+    // consumes the real softkeys (e.g. the KaiOS browser).
+    if (key === 'q' || key === '7') key = 'SoftLeft';
     if (key === 'e') key = 'SoftRight';
 
     // Any key press stops hands-free scrolling (except its own toggle).
@@ -438,11 +477,7 @@
         e.preventDefault();
         break;
       case 'Enter':
-        if (state.error) {
-          loadDay();
-        } else if (state.view === 'horas') {
-          openHourChooser();
-        }
+        primaryAction();
         e.preventDefault();
         break;
       case 'SoftLeft':
@@ -451,7 +486,7 @@
         break;
       case 'SoftRight':
       case 'Backspace':
-        openExitConfirm();
+        backAction();
         e.preventDefault();
         break;
       case '9':
@@ -507,6 +542,7 @@
         break;
       case 'SoftRight':
       case 'Backspace':
+      case 'Escape':
         closeOverlay();
         renderAll();
         e.preventDefault();
@@ -534,6 +570,30 @@
     setFontSize(savedFont);
 
     document.addEventListener('keydown', onKeyDown);
+
+    // Pointer fallbacks: the KaiOS browser's virtual cursor and desktop
+    // mice never produce softkey events, so every control is clickable.
+    el.navPrev.addEventListener('click', function () { changeDay(-1); });
+    el.navNext.addEventListener('click', function () { changeDay(1); });
+    el.skLeft.addEventListener('click', function () {
+      if (!state.overlay) openOptionsMenu();
+    });
+    el.skCenter.addEventListener('click', function () {
+      if (state.overlay) {
+        overlayActivate(state.overlay.index);
+      } else {
+        primaryAction();
+      }
+    });
+    el.skRight.addEventListener('click', backAction);
+    el.overlayList.addEventListener('click', function (e) {
+      var li = e.target;
+      while (li && li.nodeName !== 'LI') li = li.parentNode;
+      if (!li || !li.parentNode) return;
+      var index = Array.prototype.indexOf.call(el.overlayList.children, li);
+      overlayActivate(index);
+    });
+
     loadDay();
   }
 

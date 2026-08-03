@@ -35,11 +35,19 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
 | SoftLeft | Options menu |
 | SoftRight / Back | Back / exit (with confirmation) |
 | 1–5 | Jump straight to a canonical hour |
+| 7 | Options menu (alias for SoftLeft) |
 | 9 | Switch Horas ⇄ Missa |
 | 0 | Toggle autoscroll |
 | * / # | Smaller / larger text |
 
-Desktop testing: `q` = SoftLeft, `e` = SoftRight.
+Desktop testing: `q` = SoftLeft, `e` = SoftRight; Escape closes menus.
+
+**In a browser** (hosted URL or desktop) the browser chrome keeps the real
+softkeys for itself and the KaiOS browser turns the D-pad into a virtual
+cursor — so every control is also clickable: the ‹ › day arrows in the
+header, the softkey bar labels, and the menu/chooser entries. The key
+shortcuts above are all fully honoured in the packaged app, where the app
+owns the keypad.
 
 ## Running it
 
