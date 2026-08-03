@@ -50,10 +50,11 @@ Key ownership is split: **the action keys (SoftLeft/SoftRight/Back) keep
 their browser meaning in a browser tab** — so the browser's softkey menu
 with "Add to Home Screen" works — and only the packaged/installed app
 claims them. **The number pad (digits, `*`, `#`) is claimed everywhere**,
-suppressing the browser's conflicting digit shortcuts. In a browser,
-drive the app with the clickable controls (‹ › day arrows, softkey-bar
-labels, menu entries), the digit shortcuts, and `7` for the options menu.
-Appending `?browser=1` to the URL hands every key back to the browser.
+suppressing the browser's conflicting digit shortcuts. There is no
+on-screen softkey bar: in a browser, drive the app with the clickable
+controls (‹ › day arrows; **clicking the date opens the options menu**;
+menu entries select on click), the digit shortcuts, and `7` for the
+options menu. Appending `?browser=1` hands every key back to the browser.
 
 ## Running it
 

@@ -112,6 +112,7 @@ body {
 #date-line {
   flex: 1;
   text-align: center;
+  cursor: pointer; /* click opens the options menu */
 }
 
 #date-line {
@@ -203,8 +204,9 @@ body {
 
 /* ---- Overlay (menus & choosers) ------------------------------------ */
 
+/* Clearance for the KaiOS browser's floating round buttons. */
 html.in-browser #overlay {
-  bottom: 56px; /* softkey bar height + its lift above the browser chrome */
+  bottom: 36px;
 }
 
 #overlay {
@@ -212,7 +214,7 @@ html.in-browser #overlay {
   left: 0;
   right: 0;
   top: 0;
-  bottom: 24px; /* keep the softkey bar visible */
+  bottom: 0;
   background: rgba(38, 34, 28, 0.55);
   display: flex;
   align-items: flex-end;
@@ -240,6 +242,7 @@ html.in-browser #overlay {
 }
 
 #overlay-list li {
+  cursor: pointer;
   padding: 6px 10px;
   font-size: 0.9rem;
   border-top: 1px solid var(--line);
@@ -259,54 +262,4 @@ html.in-browser #overlay {
 
 #overlay-list li.selected .item-hint {
   color: #fff;
-}
-
-/* ---- Softkey bar ---------------------------------------------------- */
-
-/* In a browser tab the KaiOS browser overlays floating round buttons on
-   the bottom corners of the page — keep the softkey bar above them. The
-   installed app (no floating chrome) stays flush with the bottom. */
-html.in-browser #softkeys {
-  margin-bottom: 32px;
-}
-
-#softkeys {
-  flex-shrink: 0;
-  height: 24px;
-  background: var(--sk-bg);
-  color: var(--sk-ink);
-  font-size: 0.72rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-#sk-left,
-#sk-center,
-#sk-right {
-  white-space: nowrap;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-#overlay-list li {
-  cursor: pointer;
-}
-
-#sk-left {
-  flex: 1;
-  text-align: left;
-  padding-left: 6px;
-}
-
-#sk-center {
-  flex: 1;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-#sk-right {
-  flex: 1;
-  text-align: right;
-  padding-right: 6px;
 }

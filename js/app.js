@@ -14,10 +14,10 @@
  *   0          toggle autoscroll
  *   * / #      smaller / larger text
  *
- * Every control is also clickable (header day arrows, softkey bar,
- * overlay items): in the KaiOS *browser* — as opposed to the packaged
- * app — the D-pad drives a virtual cursor, so clicks are the reliable
- * channel there. Same for mouse users on desktop.
+ * Every control is also clickable (header day arrows, the date line
+ * opens the options menu, overlay items select): in the KaiOS *browser*
+ * — as opposed to the packaged app — the D-pad drives a virtual cursor,
+ * so clicks are the reliable channel there. Same for desktop mice.
  *
  * SoftLeft/SoftRight/Backspace keep their browser meaning in a browser
  * tab (only a packaged/installed app claims them); the number pad is
@@ -66,7 +66,7 @@
   // ?browser=1 hands everything back to the browser.
   var ownsSoftkeys = window.location.protocol === 'app:';
   // The KaiOS browser floats round buttons over the page's bottom corners
-  // — the in-browser class lifts the softkey bar clear of them.
+  // — the in-browser class keeps menus clear of them.
   document.documentElement.classList.toggle('in-browser', !ownsSoftkeys);
   if (!ownsSoftkeys && navigator.mozApps && navigator.mozApps.getSelf) {
     try {
@@ -108,10 +108,7 @@
     content: document.getElementById('content'),
     overlay: document.getElementById('overlay'),
     overlayTitle: document.getElementById('overlay-title'),
-    overlayList: document.getElementById('overlay-list'),
-    skLeft: document.getElementById('sk-left'),
-    skCenter: document.getElementById('sk-center'),
-    skRight: document.getElementById('sk-right')
+    overlayList: document.getElementById('overlay-list')
   };
 
   // ---- HTML sanitisation ---------------------------------------------
@@ -270,22 +267,6 @@
     return div.innerHTML;
   }
 
-  function renderSoftkeys() {
-    if (state.overlay) {
-      el.skLeft.textContent = '';
-      el.skCenter.textContent = 'OK';
-      el.skRight.textContent = 'Voltar';
-    } else if (state.error) {
-      el.skLeft.textContent = 'Opções';
-      el.skCenter.textContent = 'Tentar';
-      el.skRight.textContent = 'Sair';
-    } else {
-      el.skLeft.textContent = 'Opções';
-      el.skCenter.textContent = state.view === 'horas' ? 'Horas' : '';
-      el.skRight.textContent = 'Sair';
-    }
-  }
-
   function renderOverlay() {
     if (!state.overlay) {
       el.overlay.className = 'hidden';
@@ -316,7 +297,6 @@
     renderBanner();
     renderContent();
     renderOverlay();
-    renderSoftkeys();
   }
 
   // ---- Data loading ---------------------------------------------------
@@ -401,7 +381,6 @@
       if (moments[k].id === state.hourId) state.overlay.index = k;
     }
     renderOverlay();
-    renderSoftkeys();
   }
 
   function openSubHourChooser(moment) {
@@ -427,7 +406,6 @@
       if (moment.parts[k].title === current) state.overlay.index = k;
     }
     renderOverlay();
-    renderSoftkeys();
   }
 
   function openOptionsMenu() {
@@ -467,7 +445,6 @@
       hint: '0',
       action: function () {
         closeOverlay();
-        renderSoftkeys();
         toggleAutoscroll();
       }
     });
@@ -504,7 +481,6 @@
     });
     state.overlay = { type: 'menu', title: 'Opções', items: items, index: 0 };
     renderOverlay();
-    renderSoftkeys();
   }
 
   function exitApp() {
@@ -534,13 +510,11 @@
       index: 1
     };
     renderOverlay();
-    renderSoftkeys();
   }
 
   function closeOverlay() {
     state.overlay = null;
     el.overlay.className = 'hidden';
-    renderSoftkeys();
   }
 
   // ---- Autoscroll & font size ----------------------------------------
@@ -823,17 +797,11 @@
     // mice never produce softkey events, so every control is clickable.
     el.navPrev.addEventListener('click', function () { changeDay(-1); });
     el.navNext.addEventListener('click', function () { changeDay(1); });
-    el.skLeft.addEventListener('click', function () {
+    // With no on-screen softkey bar, the date line is the pointer path to
+    // the options menu (physical softkeys cover it in the installed app).
+    el.dateLine.addEventListener('click', function () {
       if (!state.overlay) openOptionsMenu();
     });
-    el.skCenter.addEventListener('click', function () {
-      if (state.overlay) {
-        overlayActivate(state.overlay.index);
-      } else {
-        primaryAction();
-      }
-    });
-    el.skRight.addEventListener('click', backAction);
     el.overlayList.addEventListener('click', function (e) {
       var li = e.target;
       while (li && li.nodeName !== 'LI') li = li.parentNode;
