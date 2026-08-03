@@ -42,13 +42,13 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
 
 Desktop testing: `q` = SoftLeft, `e` = SoftRight; Escape closes menus.
 
-**In a browser** (hosted URL or desktop) the app deliberately does NOT
-claim SoftLeft/SoftRight/Backspace — they keep their browser meaning, so
-the KaiOS browser's right-softkey menu (with "Add to Home Screen") keeps
-working. Use clicks instead: the ‹ › day arrows in the header, the softkey
-bar labels, and the menu/chooser entries are all clickable, and `7` opens
-the options menu from the keypad. The full key map above applies in app
-mode (packaged or installed), where the app owns the keypad.
+The app claims the softkeys and back key **everywhere by default** —
+browser shortcuts are suppressed so the key map above works in a browser
+tab too. When you need the browser's own softkey menu (e.g. its
+**"Add to Home Screen"**), open the app with `?browser=1` appended to the
+URL: that hands SoftLeft/SoftRight/Backspace back to the browser, while
+the clickable controls (‹ › day arrows, softkey-bar labels, menu entries)
+and the `7` options-menu shortcut keep driving the app.
 
 ## Running it
 

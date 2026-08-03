@@ -19,9 +19,9 @@
  * app — the D-pad drives a virtual cursor, so clicks are the reliable
  * channel there. Same for mouse users on desktop.
  *
- * SoftLeft/SoftRight/Backspace are only claimed in app mode (packaged /
- * installed): in a browser tab those keys keep their browser meaning —
- * notably the right-softkey menu with "Add to Home Screen".
+ * SoftLeft/SoftRight/Backspace are claimed everywhere by default so the
+ * D-pad UI also works in a browser tab; open with ?browser=1 to leave
+ * those keys to the browser (e.g. to reach its "Add to Home Screen").
  *
  * Syntax budget: Gecko 48 — no async/await, no ?., no ??, no spread.
  */
@@ -44,23 +44,13 @@
   var FONT_KEY = 'mora_kaios_font';
   var FONT_CLASSES = ['font-s', '', 'font-l'];
 
-  // App mode = we own the whole keypad (packaged app, or installed via
-  // mozApps). In a plain browser tab we must NOT claim SoftLeft/SoftRight/
-  // Backspace: the KaiOS browser delivers those key events to the page
-  // before acting on them, and preventDefault() would block the browser's
-  // own softkey menu — including "Add to Home Screen". Clicks and the
-  // digit shortcuts remain available in browser mode.
-  var appMode = window.location.protocol === 'app:';
-  if (!appMode && navigator.mozApps && navigator.mozApps.getSelf) {
-    try {
-      var selfReq = navigator.mozApps.getSelf();
-      selfReq.onsuccess = function () {
-        if (selfReq.result) appMode = true;
-      };
-    } catch (err) {
-      /* not a KaiOS app context */
-    }
-  }
+  // The app claims the softkeys and back key everywhere by default: the
+  // KaiOS browser delivers those key events to the page first, and
+  // preventDefault() suppresses the browser's own shortcuts, so the D-pad
+  // UI works even in a browser tab. Open with ?browser=1 to hand the keys
+  // back to the browser when its native menu is needed (e.g. the
+  // right-softkey "Add to Home Screen").
+  var appMode = !/[?&]browser=1/.test(window.location.search);
 
   var state = {
     view: 'horas',          // 'horas' | 'missa'
