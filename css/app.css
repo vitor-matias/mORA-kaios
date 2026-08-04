@@ -4,8 +4,8 @@
  *  - no CSS grid (Gecko 52) and no flexbox gap (Gecko 63): spacing is
  *    margins only;
  *  - no backdrop-filter (Gecko 103);
- *  - CSS custom properties are fine (Gecko 31) and carry the liturgical
- *    colour theme.
+ *  - CSS custom properties are fine (Gecko 31) and carry the
+ *    light/dark theme.
  */
 
 :root {
@@ -14,7 +14,7 @@
   --ink: #26221c;
   --ink-soft: #6b6459;
   --line: #e6e1d8;
-  --accent: #1a7a3c;      /* liturgical colour, set per-day from JS */
+  --accent: #1a7a3c;
   --accent-soft: #e7f2ea;
   --sk-bg: #26221c;
   --sk-ink: #faf9f6;
@@ -23,6 +23,7 @@
 /* Dark theme: toggled by JS as a class (Gecko 48 predates
    prefers-color-scheme), persisted in localStorage. */
 html.dark {
+  --accent: #4caf72; /* brighter for contrast on the dark background */
   --bg: #121212;
   --surface: #1d1c1a;
   --ink: #e8e4dc;
@@ -46,8 +47,9 @@ html {
 html.font-s { font-size: 13px; }
 html.font-l { font-size: 17px; }
 
-/* Serif option for the reading text (menu toggle, persisted). Falls back
-   to the generic serif on devices without these faces. */
+/* Reading face: serif by default (matching the web app's Lora/Georgia
+   reading type), with a sans option in the menu. Falls back to the
+   generic serif on devices without these faces. */
 html.serif #content {
   font-family: Georgia, "Times New Roman", serif;
 }
@@ -173,14 +175,68 @@ body {
   margin-bottom: 8px;
 }
 
-/* Remote liturgy HTML: keep generic tags readable at QVGA. */
+/* ---- Remote liturgy HTML typography ---------------------------------
+   The API marks structure with plain tags: Mass section headers arrive
+   as <p><strong>LEITURA I</strong></p> (readings) and <p><b>Antífona…
+   </b></p> (full missal); the Hours verses use h3 section titles and h6
+   sub-notes. Styled here the way the web app styles its enriched
+   equivalents, scaled for QVGA. Ragged-right and no hyphens: liturgical
+   text is mostly verse, where justification opens rivers and hyphens
+   split words mid-verse on a narrow screen. */
+
+#content {
+  text-align: left;
+  hyphens: none;
+  -moz-hyphens: none;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+}
+
 #content p {
   margin-bottom: 7px;
 }
 
+/* Section headers within the Mass text (LEITURA I, SALMO RESPONSORIAL,
+   EVANGELHO, Antífona de entrada, Oração coleta, …) — tagged .lit-header
+   by the sanitiser, which verifies the paragraph is a lone bold element
+   with no prose of its own. */
+#content p.lit-header {
+  font-family: sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-top: 14px;
+  margin-bottom: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+#content p.lit-header:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Hours HTML: h3 section titles, h6 small sub-notes (as in the web
+   app's API_HTML_CLASSES treatment). */
+#content h3 {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin: 12px 0 4px 0;
+  line-height: 1.3;
+}
+
+#content h6 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin: 0 0 8px 0;
+}
+
 #content h1,
 #content h2,
-#content h3,
 #content h4 {
   font-size: 0.95rem;
   margin: 10px 0 5px 0;

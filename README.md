@@ -32,9 +32,10 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
   defaults to Sunday's Mass from Saturday 16:00 (vigil). Manual day
   navigation pins the chosen date until "Hoje".
 - Hands-free **autoscroll** for praying without touching the keypad.
-- Three text sizes, a serif/sans reading face, and a light/dark theme —
-  all persisted. A fullscreen toggle hides the browser/system chrome.
-- Liturgical-colour header accent inferred from the day's title.
+- Serif reading face by default (sans as a menu option), three text
+  sizes, and a light/dark theme — all persisted. A fullscreen toggle
+  hides the browser/system chrome. Section headers in the liturgy text
+  (LEITURA I, Antífona…) are typeset as labelled separators.
 
 ## Controls
 
@@ -119,6 +120,4 @@ note that on Gecko 48 `systemXHR` only applies to `XMLHttpRequest` with
   is the next step.
 - The saints' offices and Ofício de Defuntos (mORA's `public/lh` breviary
   data) are not included.
-- No liturgical-calendar ICS integration (colour is inferred from the
-  Mass title); `liturgia.pt` needs `mozSystem` XHR on-device.
 - No reminders (`mozAlarms`) yet — see the requirements doc, §3.5.

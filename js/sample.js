@@ -10,7 +10,6 @@
     return {
       date: dateStr,
       massDate: dateStr,
-      color: 'verde',
       title: 'Dia de exemplo (sem ligação)',
       weekName: 'Tempo Comum',
       sample: true,

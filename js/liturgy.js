@@ -70,16 +70,6 @@
     }
   }
 
-  // ---- Colour inference (rough, from the Mass title) ------------------
-
-  function inferColor(title) {
-    var t = (title || '').toLowerCase();
-    if (t.indexOf('quaresma') !== -1 || t.indexOf('advento') !== -1) return 'roxo';
-    if (t.indexOf('mártir') !== -1 || t.indexOf('martir') !== -1 || t.indexOf('espírito santo') !== -1) return 'vermelho';
-    if (t.indexOf('solenidade') !== -1 || t.indexOf('festa') !== -1 || t.indexOf('natal') !== -1 || t.indexOf('páscoa') !== -1) return 'branco';
-    return 'verde';
-  }
-
   // ---- Fetch ----------------------------------------------------------
 
   // Gecko 48 has no AbortController, so a hung request would spin forever;
@@ -97,7 +87,7 @@
   }
 
   /**
-   * Resolves the day's liturgy: { date, massDate, color, title, weekName,
+   * Resolves the day's liturgy: { date, massDate, title, weekName,
    * massHtml, parts, sample? } — or null when the API has no Mass for the
    * date. Network failures fall back to a stale cache entry when one
    * exists, otherwise reject.
@@ -134,7 +124,6 @@
         var result = {
           date: dateStr,
           massDate: mass.date,
-          color: inferColor(mass.title),
           title: mass.title,
           weekName: memory ? memory.week_name : null,
           massHtml: mass.text,

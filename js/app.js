@@ -30,23 +30,6 @@
 
   var L = window.MoraLiturgy;
 
-  var COLORS = {
-    verde: '#1a7a3c',
-    roxo: '#6d3fa0',
-    vermelho: '#b3372e',
-    branco: '#b09232',
-    rosa: '#c26a8d'
-  };
-
-  // Brighter liturgical accents for readability on the dark background.
-  var COLORS_DARK = {
-    verde: '#4caf72',
-    roxo: '#a678d8',
-    vermelho: '#e0645a',
-    branco: '#d4b95e',
-    rosa: '#d98aa8'
-  };
-
   var WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
   var MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
@@ -135,6 +118,24 @@
         }
       }
     });
+    // Tag section-header paragraphs (<p><strong>LEITURA I</strong></p>,
+    // <p><b>Antífona de entrada</b></p>) for the typography CSS. Only a
+    // paragraph whose single element child is bold AND that has no direct
+    // text of its own qualifies — CSS :only-child alone would also catch
+    // prose like "<strong>Refrão:</strong> O Senhor é o meu pastor…".
+    var paras = doc.querySelectorAll('p');
+    Array.prototype.forEach.call(paras, function (p) {
+      if (p.children.length !== 1) return;
+      var tag = p.children[0].tagName;
+      if (tag !== 'STRONG' && tag !== 'B') return;
+      var direct = '';
+      for (var j = 0; j < p.childNodes.length; j++) {
+        if (p.childNodes[j].nodeType === 3) direct += p.childNodes[j].textContent;
+      }
+      if (direct.replace(/\s+/g, '') !== '') return;
+      p.className = 'lit-header';
+    });
+
     return doc.body.firstChild ? doc.body.firstChild.innerHTML : '';
   }
 
@@ -165,10 +166,6 @@
 
   function renderHeader() {
     el.dateLine.textContent = formatDateLabel(state.date);
-    var lit = state.liturgy;
-    var palette = state.theme === 'dark' ? COLORS_DARK : COLORS;
-    var color = lit && palette[lit.color] ? palette[lit.color] : palette.verde;
-    document.documentElement.style.setProperty('--accent', color);
   }
 
   function renderBanner() {
@@ -612,7 +609,6 @@
     state.theme = theme === 'dark' ? 'dark' : 'light';
     document.documentElement.classList.toggle('dark', state.theme === 'dark');
     try { localStorage.setItem(THEME_KEY, state.theme); } catch (e) { /* ignore */ }
-    renderHeader(); // accent palette differs per theme
   }
 
   function setFontSize(size) {
@@ -812,7 +808,9 @@
 
     try {
       setTheme(localStorage.getItem(THEME_KEY) || 'light');
-      setSerif(localStorage.getItem(SERIF_KEY) === '1');
+      // Serif is the default reading face; '0' records an explicit
+      // switch to sans.
+      setSerif(localStorage.getItem(SERIF_KEY) !== '0');
     } catch (e) {
       /* defaults apply */
     }
