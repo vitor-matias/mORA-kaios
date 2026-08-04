@@ -14,8 +14,8 @@
   --ink: #26221c;
   --ink-soft: #6b6459;
   --line: #e6e1d8;
-  --accent: #1a7a3c;
-  --accent-soft: #e7f2ea;
+  --accent: #a03329; /* liturgical (rubric) red */
+  --accent-soft: #f7eae8;
   --sk-bg: #26221c;
   --sk-ink: #faf9f6;
 }
@@ -23,7 +23,7 @@
 /* Dark theme: toggled by JS as a class (Gecko 48 predates
    prefers-color-scheme), persisted in localStorage. */
 html.dark {
-  --accent: #4caf72; /* brighter for contrast on the dark background */
+  --accent: #e0685c; /* brighter rubric red for the dark background */
   --bg: #121212;
   --surface: #1d1c1a;
   --ink: #e8e4dc;
