@@ -4,11 +4,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>mORA</title>
+  <title>mORA — Liturgia das Horas e Missa Diária para telemóveis com teclas</title>
+  <meta name="description"
+    content="Liturgia das Horas (Ofício de Leitura, Laudes, Hora Intermédia, Vésperas, Completas) e leituras da Missa de hoje em português, num leitor leve para KaiOS, Kindle e qualquer navegador. Grátis, sem anúncios, funciona offline.">
+  <link rel="canonical" href="https://vitor-matias.github.io/mORA-kaios/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="mORA">
+  <meta property="og:title" content="mORA — Liturgia das Horas e Missa Diária">
+  <meta property="og:description"
+    content="Liturgia das Horas e leituras da Missa de hoje em português, num leitor leve para telemóveis com teclas, Kindle e qualquer navegador.">
+  <meta property="og:url" content="https://vitor-matias.github.io/mORA-kaios/">
+  <meta property="og:image" content="https://vitor-matias.github.io/mORA-kaios/icons/icon-112.png">
+  <meta property="og:locale" content="pt_PT">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="mORA — Liturgia das Horas e Missa Diária">
+  <meta name="twitter:description"
+    content="Liturgia das Horas e leituras da Missa de hoje em português, num leitor leve para telemóveis com teclas, Kindle e qualquer navegador.">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="icon" type="image/png" sizes="56x56" href="icons/icon-56.png">
   <link rel="apple-touch-icon" href="icons/icon-112.png">
   <meta name="theme-color" content="#a03329">
+  <!-- Inline JSON-LD is a non-executable data block: crawlers require it
+       inline, and CSP script-src does not apply to it. -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "mORA para KaiOS",
+      "url": "https://vitor-matias.github.io/mORA-kaios/",
+      "description": "Liturgia das Horas e leituras da Missa diária em português, num leitor leve para telemóveis com teclas (KaiOS), Kindle e qualquer navegador.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "KaiOS, Web",
+      "inLanguage": "pt-PT",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    }
+  </script>
   <link rel="stylesheet" href="css/app.css">
 </head>
 
@@ -23,7 +54,16 @@
 
   <div id="banner" class="hidden"></div>
 
-  <main id="content"></main>
+  <main id="content">
+    <noscript>
+      <h1>mORA — Liturgia das Horas e Missa Diária</h1>
+      <p>Liturgia das Horas (Ofício de Leitura, Laudes, Hora Intermédia,
+        Vésperas e Completas) e leituras da Missa de hoje em português, num
+        leitor leve para telemóveis com teclas, Kindle e qualquer
+        navegador. Grátis e sem anúncios. Ative o JavaScript para ler os
+        textos do dia.</p>
+    </noscript>
+  </main>
 
   <!-- Overlay used for the options menu, the hour chooser and confirmations. -->
   <div id="overlay" class="hidden">

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vitor-matias.github.io/mORA-kaios/sitemap.xml
