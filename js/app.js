@@ -34,7 +34,10 @@
   var MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
   var FONT_KEY = 'mora_kaios_font';
-  var FONT_CLASSES = ['font-s', '', 'font-l'];
+  // Root font sizes in px. The low steps suit QVGA phones; the upper ones
+  // exist for big screens (e.g. reading on a Kindle's browser). Indices
+  // 0-2 keep their old meaning so stored preferences migrate unchanged.
+  var FONT_SIZES = [13, 15, 17, 20, 24, 28, 32];
   var THEME_KEY = 'mora_kaios_theme';
   var SERIF_KEY = 'mora_kaios_serif';
 
@@ -613,12 +616,9 @@
 
   function setFontSize(size) {
     if (size < 0) size = 0;
-    if (size > 2) size = 2;
+    if (size > FONT_SIZES.length - 1) size = FONT_SIZES.length - 1;
     state.fontSize = size;
-    var root = document.documentElement;
-    root.classList.remove('font-s');
-    root.classList.remove('font-l');
-    if (FONT_CLASSES[size]) root.classList.add(FONT_CLASSES[size]);
+    document.documentElement.style.fontSize = FONT_SIZES[size] + 'px';
     try { localStorage.setItem(FONT_KEY, String(size)); } catch (e) { /* ignore */ }
   }
 

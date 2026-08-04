@@ -32,8 +32,9 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
   defaults to Sunday's Mass from Saturday 16:00 (vigil). Manual day
   navigation pins the chosen date until "Hoje".
 - Hands-free **autoscroll** for praying without touching the keypad.
-- Serif reading face by default (sans as a menu option), three text
-  sizes, and a light/dark theme — all persisted. A fullscreen toggle
+- Serif reading face by default (sans as a menu option), seven text
+  sizes from 13px up to 32px — the upper steps sized for big screens
+  like a Kindle's browser — and a light/dark theme, all persisted. A fullscreen toggle
   hides the browser/system chrome. Section headers in the liturgy text
   (LEITURA I, Antífona…) are typeset as labelled separators.
 

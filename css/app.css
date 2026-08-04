@@ -44,9 +44,6 @@ html {
   font-size: 15px;
 }
 
-html.font-s { font-size: 13px; }
-html.font-l { font-size: 17px; }
-
 /* Reading face: serif by default (matching the web app's Lora/Georgia
    reading type), with a sans option in the menu. Falls back to the
    generic serif on devices without these faces. */
