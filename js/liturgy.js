@@ -82,6 +82,20 @@
 
   // ---- Fetch ----------------------------------------------------------
 
+  // Gecko 48 has no AbortController, so a hung request would spin forever;
+  // racing a timer at least lets the UI recover (the underlying request is
+  // simply abandoned).
+  var FETCH_TIMEOUT_MS = 15000;
+
+  function fetchWithTimeout(url, opts) {
+    return Promise.race([
+      fetch(url, opts),
+      new Promise(function (resolve, reject) {
+        setTimeout(function () { reject(new Error('timeout')); }, FETCH_TIMEOUT_MS);
+      })
+    ]);
+  }
+
   /**
    * Resolves the day's liturgy: { date, massDate, color, title, weekName,
    * massHtml, parts, sample? } — or null when the API has no Mass for the
@@ -92,7 +106,7 @@
     var cached = readCache(dateStr);
     if (cached) return Promise.resolve(cached);
 
-    return fetch(API_URL, {
+    return fetchWithTimeout(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: QUERY, variables: { date: dateStr, rite: 'portoghese' } })
@@ -135,6 +149,31 @@
         if (stale) return stale;
         throw err;
       });
+  }
+
+  /**
+   * Warms the cache for the next few days so mornings work instantly and
+   * offline (port of mORA's preloadUpcomingLiturgy). Sequential to avoid
+   * hammering the API, skips days already cached, never rejects.
+   */
+  function preloadUpcoming(days) {
+    days = days || 5;
+    var base = new Date();
+    var chain = Promise.resolve();
+
+    function enqueue(dateStr) {
+      chain = chain.then(function () {
+        if (readCache(dateStr)) return null;
+        return fetchDailyLiturgy(dateStr).then(null, function () { return null; });
+      });
+    }
+
+    for (var i = 1; i <= days; i++) {
+      var d = new Date(base.getTime());
+      d.setDate(base.getDate() + i);
+      enqueue(formatLocalDate(d));
+    }
+    return chain;
   }
 
   // ---- Canonical hours -------------------------------------------------
@@ -234,6 +273,7 @@
   global.MoraLiturgy = {
     formatLocalDate: formatLocalDate,
     fetchDailyLiturgy: fetchDailyLiturgy,
+    preloadUpcoming: preloadUpcoming,
     buildCanonicalHours: buildCanonicalHours,
     getHourForTime: getHourForTime,
     getDefaultMassDate: getDefaultMassDate

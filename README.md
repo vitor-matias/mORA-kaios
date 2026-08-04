@@ -23,7 +23,14 @@ grid), shipped as a privileged packaged app (`manifest.webapp`).
   the options menu.
 - Day navigation (previous/next/today), per-day `localStorage` cache with
   automatic pruning of past days, stale-cache fallback when offline, and a
-  bundled sample day so the app always renders something.
+  bundled sample day so the app always renders something. After a
+  successful load the next 5 days are quietly prefetched, and network
+  requests time out after 15 s instead of hanging (Gecko 48 has no
+  AbortController).
+- An un-navigated app follows the calendar: it re-anchors to the new day
+  after midnight or when resumed from the background, and the Missa view
+  defaults to Sunday's Mass from Saturday 16:00 (vigil). Manual day
+  navigation pins the chosen date until "Hoje".
 - Hands-free **autoscroll** for praying without touching the keypad.
 - Three text sizes, a serif/sans reading face, and a light/dark theme —
   all persisted. A fullscreen toggle hides the browser/system chrome.
@@ -115,5 +122,3 @@ note that on Gecko 48 `systemXHR` only applies to `XMLHttpRequest` with
 - No liturgical-calendar ICS integration (colour is inferred from the
   Mass title); `liturgia.pt` needs `mozSystem` XHR on-device.
 - No reminders (`mozAlarms`) yet — see the requirements doc, §3.5.
-- Sunday-vigil Mass defaulting and prefetch-tomorrow are straightforward
-  follow-ups.

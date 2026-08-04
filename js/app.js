@@ -86,6 +86,7 @@
   var state = {
     view: 'horas',          // 'horas' | 'missa'
     date: new Date(),
+    datePinned: false,      // true after manual day navigation
     hourId: null,           // selected canonical hour id
     subHour: null,          // 'Tércia' | 'Sexta' | 'Noa' | null = by time
     missaFull: false,       // Missa defaults to readings-only
@@ -315,6 +316,12 @@
         state.liturgy = result;
         ensureHourSelection();
         renderAll();
+        // With today confirmed reachable, quietly warm the next days so
+        // mornings open instantly and offline. Cached days are skipped,
+        // so repeat calls cost nothing.
+        if (result && !result.sample) {
+          setTimeout(function () { L.preloadUpcoming(5); }, 3000);
+        }
       },
       function () {
         if (L.formatLocalDate(state.date) !== dateStr) return;
@@ -349,7 +356,42 @@
     var d = new Date(state.date.getTime());
     d.setDate(d.getDate() + delta);
     state.date = d;
+    state.datePinned = true;
     loadDay();
+  }
+
+  // The date the app anchors to when the user hasn't navigated away:
+  // today for the Hours, the vigil-shifted date for the Mass (from
+  // Saturday 16:00 the evening Mass already belongs to Sunday).
+  function defaultDateFor(view) {
+    return view === 'missa' ? L.getDefaultMassDate(new Date()) : new Date();
+  }
+
+  function switchView(view) {
+    state.view = view;
+    if (!state.datePinned) {
+      var d = defaultDateFor(view);
+      if (L.formatLocalDate(d) !== L.formatLocalDate(state.date)) {
+        state.date = d;
+        loadDay();
+        return;
+      }
+    }
+    renderAll();
+  }
+
+  // Re-anchor an un-navigated app when the default date moves on — the
+  // app was left open past midnight, resumed from the background days
+  // later, or crossed the Saturday-16:00 vigil switch.
+  function checkRollover() {
+    if (state.datePinned) return;
+    var d = defaultDateFor(state.view);
+    if (L.formatLocalDate(d) !== L.formatLocalDate(state.date)) {
+      state.date = d;
+      state.hourId = null;   // re-pick the hour for the new moment
+      state.subHour = null;
+      loadDay();
+    }
   }
 
   // ---- Overlays -------------------------------------------------------
@@ -368,10 +410,9 @@
               openSubHourChooser(moment);
               return;
             }
-            state.view = 'horas';
             state.hourId = moment.id;
             closeOverlay();
-            renderAll();
+            switchView('horas');
           }
         });
       })(moments[i], i);
@@ -392,11 +433,10 @@
           label: part.title,
           hint: String(n + 1),
           action: function () {
-            state.view = 'horas';
             state.hourId = 'intermedia';
             state.subHour = part.title;
             closeOverlay();
-            renderAll();
+            switchView('horas');
           }
         });
       })(moment.parts[i], i);
@@ -414,9 +454,9 @@
       label: state.view === 'horas' ? 'Ver Missa do dia' : 'Ver Liturgia das Horas',
       hint: '9',
       action: function () {
-        state.view = state.view === 'horas' ? 'missa' : 'horas';
+        var next = state.view === 'horas' ? 'missa' : 'horas';
         closeOverlay();
-        renderAll();
+        switchView(next);
       }
     });
     if (state.view === 'horas') {
@@ -435,7 +475,8 @@
     items.push({
       label: 'Hoje',
       action: function () {
-        state.date = new Date();
+        state.datePinned = false;
+        state.date = defaultDateFor(state.view);
         closeOverlay();
         loadDay();
       }
@@ -675,8 +716,7 @@
       // — so the browser's shortcuts can't fire underneath ours.
       case '9':
         if (browserAll) return;
-        state.view = state.view === 'horas' ? 'missa' : 'horas';
-        renderAll();
+        switchView(state.view === 'horas' ? 'missa' : 'horas');
         e.preventDefault();
         break;
       case '0':
@@ -715,9 +755,8 @@
   function selectHourByNumber(n) {
     var moments = currentMoments();
     if (n >= 1 && n <= moments.length) {
-      state.view = 'horas';
       state.hourId = moments[n - 1].id;
-      renderAll();
+      switchView('horas');
     }
   }
 
@@ -792,6 +831,15 @@
     }
 
     document.addEventListener('keydown', onKeyDown);
+
+    // Re-anchor to the new day when the app resurfaces (KaiOS keeps apps
+    // suspended for days) or while it sits open across midnight / the
+    // Saturday-16:00 vigil switch. Manual day navigation pins the date
+    // and disables this until "Hoje".
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) checkRollover();
+    });
+    setInterval(checkRollover, 60000);
 
     // Pointer fallbacks: the KaiOS browser's virtual cursor and desktop
     // mice never produce softkey events, so every control is clickable.
