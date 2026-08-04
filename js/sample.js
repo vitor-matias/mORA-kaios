@@ -15,9 +15,9 @@
       sample: true,
       massHtml:
         '<h2>LEITURA I</h2>' +
-        '<p><em>Leitura de exemplo — sem ligação à internet, os textos do dia ' +
+        '<p>Leitura de exemplo — sem ligação à internet, os textos do dia ' +
         'não estão disponíveis. Ligue os dados e escolha «Atualizar» no menu ' +
-        'de opções.</em></p>' +
+        'de opções.</p>' +
         '<h2>SALMO RESPONSORIAL</h2>' +
         '<p><strong>Refrão:</strong> O Senhor é o meu pastor: nada me falta.</p>' +
         '<h2>EVANGELHO</h2>' +

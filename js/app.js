@@ -103,7 +103,23 @@
   // scrub keeps active content out of the DOM regardless of context
   // (e.g. desktop-browser testing, where there is no packaged-app CSP).
 
-  function sanitizeHtml(html) {
+  // A commentary paragraph is entirely italic with no plain text of its
+  // own — the same detection the web app uses to make them collapsible
+  // (Liturgy.tsx makeCommentariesCollapsible); here they are dropped.
+  function isCommentaryPara(p) {
+    if (p.children.length === 0) return false;
+    for (var k = 0; k < p.children.length; k++) {
+      var tag = p.children[k].tagName;
+      if (tag !== 'I' && tag !== 'EM') return false;
+    }
+    for (var j = 0; j < p.childNodes.length; j++) {
+      var n = p.childNodes[j];
+      if (n.nodeType === 3 && n.textContent.replace(/\s+/g, '') !== '') return false;
+    }
+    return true;
+  }
+
+  function sanitizeHtml(html, stripCommentary) {
     var doc = new DOMParser().parseFromString('<div>' + String(html || '') + '</div>', 'text/html');
     var bad = doc.querySelectorAll('script,style,iframe,object,embed,link,meta,form');
     Array.prototype.forEach.call(bad, function (node) {
@@ -121,6 +137,12 @@
         }
       }
     });
+    if (stripCommentary) {
+      Array.prototype.forEach.call(doc.querySelectorAll('p'), function (p) {
+        if (isCommentaryPara(p) && p.parentNode) p.parentNode.removeChild(p);
+      });
+    }
+
     // Tag section-header paragraphs (<p><strong>LEITURA I</strong></p>,
     // <p><b>Antífona de entrada</b></p>) for the typography CSS. Only a
     // paragraph whose single element child is bold AND that has no direct
@@ -228,7 +250,7 @@
     } else if (state.view === 'missa') {
       var massHtml = state.liturgy.massHtml;
       if (!state.missaFull) massHtml = extractReadings(massHtml);
-      html = sanitizeHtml(massHtml);
+      html = sanitizeHtml(massHtml, true);
     } else {
       var moment = currentMoment();
       if (!moment) {
